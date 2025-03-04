@@ -1,35 +1,23 @@
-import express from 'express';
-import fetch from 'node-fetch';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-dotenv.config();
-
-const app = express();
-const PORT = process.env.PORT || 5000;
-
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, '../dist')));
+import { NextResponse } from 'next/server';
 
 const API_KEY = process.env.GROQ_API_KEY;
 
-app.post('/api/gpt', async (req, res) => {
+export async function POST(request: Request) {
   try {
+    const { ingredients } = await request.json();
+
     if (!API_KEY) {
-      throw new Error('API key not configured');
+      return NextResponse.json(
+        { error: 'API key not configured' },
+        { status: 500 }
+      );
     }
 
-    const { ingredients } = req.body;
-    console.log('Received ingredients:', ingredients);
-
     if (!ingredients) {
-      throw new Error('No ingredients provided');
+      return NextResponse.json(
+        { error: 'No ingredients provided' },
+        { status: 400 }
+      );
     }
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -59,48 +47,45 @@ app.post('/api/gpt', async (req, res) => {
       })
     });
 
-    console.log('API Response Status:', response.status);
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: 'Failed to generate recipe' },
+        { status: response.status }
+      );
+    }
+
     const data = await response.json();
-    console.log('API Response:', data);
-
-    if (response.status === 401) {
-      throw new Error('Invalid API key. Please check your Groq API key.');
-    }
-
-    if (data.error) {
-      throw new Error(data.error.message || 'API Error');
-    }
-
-    if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
-      throw new Error('Invalid API response format');
+    
+    if (!data.choices?.[0]?.message?.content) {
+      return NextResponse.json(
+        { error: 'Invalid API response format' },
+        { status: 500 }
+      );
     }
 
     const recipeText = data.choices[0].message.content;
-    console.log('Recipe Text:', recipeText);
-
+    
     const nameMatch = recipeText.match(/Recipe Name:\s*([^\n]+)/);
     const prepMatch = recipeText.match(/Preparation Method:\s*([\s\S]*?)(?=\n\s*Nutritional Information:|$)/);
     const nutriMatch = recipeText.match(/Nutritional Information:\s*([\s\S]*?)$/);
 
     if (!nameMatch || !prepMatch || !nutriMatch) {
-      console.error('Failed to parse recipe sections');
-      throw new Error('Failed to parse recipe format');
+      return NextResponse.json(
+        { error: 'Failed to parse recipe format' },
+        { status: 500 }
+      );
     }
 
-    const structuredResponse = {
+    return NextResponse.json({
       name: nameMatch[1].trim(),
       preparationMethod: prepMatch[1].trim(),
       nutritionalInformation: nutriMatch[1].trim()
-    };
-
-    console.log('Sending response:', structuredResponse);
-    res.json(structuredResponse);
+    });
   } catch (error) {
-    console.error('Error details:', error);
-    res.status(500).json({ error: error.message || 'Server Error' });
+    console.error('Error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
-});
-
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+} 
