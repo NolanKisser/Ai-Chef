@@ -54,22 +54,42 @@ app.post('/api/gpt', async (req, res) => {
       return res.status(400).json({ error: 'Ingredients are required' });
     }
 
-    const prompt = `Generate 3 unique recipe suggestions using these ingredients: ${ingredients}. 
-    For each recipe, provide:
-    1. A name
-    2. Detailed preparation method
-    3. Basic nutritional information
-    Format as a JSON array with objects containing 'name', 'preparationMethod', and 'nutritionalInformation' fields.`;
+    const prompt = `Using ONLY these ingredients: ${ingredients}, create 3 COMPLETELY DIFFERENT recipes.
+    Each recipe must:
+    1. Use a different cooking method (e.g., baking, frying, grilling)
+    2. Result in a different type of dish (e.g., if one is a pasta dish, another should be a different category)
+    3. Use the ingredients in unique combinations
+    
+    For each recipe provide:
+    - name: A descriptive name of the dish
+    - preparationMethod: Detailed step-by-step cooking instructions
+    - nutritionalInformation: Estimated nutritional values per serving
+    
+    Format the response as a JSON array of 3 objects, each with the fields: name, preparationMethod, and nutritionalInformation.
+    
+    Example format:
+    [
+      {
+        "name": "Recipe 1 Name",
+        "preparationMethod": "Step by step instructions...",
+        "nutritionalInformation": "Nutritional details..."
+      },
+      // ... 2 more recipes
+    ]`;
 
     const completion = await groq.chat.completions.create({
       messages: [
+        {
+          role: 'system',
+          content: 'You are a creative chef who specializes in creating diverse recipes from the same ingredients. Always ensure each recipe is distinctly different from the others in terms of cooking method, final dish type, and flavor profile.'
+        },
         {
           role: 'user',
           content: prompt,
         },
       ],
       model: 'mixtral-8x7b-32768',
-      temperature: 0.8,
+      temperature: 0.9,
       max_tokens: 2048,
     });
 
@@ -82,6 +102,19 @@ app.post('/api/gpt', async (req, res) => {
     let recipes;
     try {
       recipes = JSON.parse(response);
+      
+      // Validate that we have exactly 3 different recipes
+      if (!Array.isArray(recipes) || recipes.length !== 3) {
+        throw new Error('Invalid number of recipes received');
+      }
+
+      // Validate each recipe has required fields
+      recipes.forEach((recipe, index) => {
+        if (!recipe.name || !recipe.preparationMethod || !recipe.nutritionalInformation) {
+          throw new Error(`Recipe ${index + 1} is missing required fields`);
+        }
+      });
+
     } catch (error) {
       console.error('Failed to parse AI response:', error);
       throw new Error('Invalid response format from AI');
