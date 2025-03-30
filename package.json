@@ -1,31 +1,20 @@
 {
-  "name": "ai-chef-next",
-  "version": "0.1.0",
-  "private": true,
+  "name": "ai-chef",
+  "version": "1.0.0",
+  "description": "AI Chef Recipe Generator",
+  "main": "src/server.js",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
   },
   "dependencies": {
-    "@types/node": "^22.13.9",
-    "@types/react": "^19.0.10",
-    "@types/react-dom": "^19.0.4",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "framer-motion": "^12.5.0",
-    "groq-sdk": "^0.15.0",
-    "next": "^15.2.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "typescript": "^5.8.2"
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.7.0",
+    "groq-sdk": "^0.1.0"
   },
   "devDependencies": {
-    "@tailwindcss/forms": "^0.5.10",
-    "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.31",
-    "tailwindcss": "^3.3.0"
+    "nodemon": "^2.0.22"
   }
 }

@@ -15,18 +15,22 @@ export async function fetchRecipes(ingredients) {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to fetch recipes');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `Failed to fetch recipes: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
     
     if (!data || !Array.isArray(data.recipes)) {
-      throw new Error('Invalid response format');
+      throw new Error('Invalid response format from server');
     }
 
     return data.recipes;
   } catch (error) {
     console.error('Error fetching recipes:', error);
+    if (error.message.includes('Failed to connect')) {
+      throw new Error('Could not connect to the server. Please make sure the server is running.');
+    }
     throw error;
   }
 } 
