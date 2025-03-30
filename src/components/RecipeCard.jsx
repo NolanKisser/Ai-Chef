@@ -11,103 +11,40 @@ function RecipeCard({ recipe, index, selectedRecipe, onSelect }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.1 }}
     >
-      <div className="space-y-4">
-        {/* Recipe Name Dropdown */}
-        <button
-          onClick={() => onSelect(isSelected ? null : index)}
-          className="w-full text-left transition-all duration-300"
-        >
-          <div className="p-4 rounded-lg border-2 bg-white border-gray-200 hover:border-emerald-300 hover:shadow-md">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">
-                {recipe.name}
-              </h2>
-              <motion.div
-                animate={{ rotate: isSelected ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
+      <button
+        onClick={() => onSelect(isSelected ? null : index)}
+        className="w-full text-left transition-all duration-300"
+      >
+        <div className={`p-6 rounded-lg border-2 transition-all duration-300 ${
+          isSelected
+            ? 'bg-white border-emerald-500 shadow-lg'
+            : 'bg-white border-gray-200 hover:border-emerald-300 hover:shadow-md'
+        }`}>
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900 line-clamp-2">
+              {recipe.name}
+            </h2>
+            <motion.div
+              animate={{ rotate: isSelected ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <svg
+                className="w-5 h-5 text-emerald-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <svg
-                  className="w-5 h-5 text-emerald-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </motion.div>
-            </div>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </motion.div>
           </div>
-        </button>
-
-        {/* Ingredients Dropdown */}
-        <button
-          onClick={() => onSelect(isSelected ? null : index)}
-          className="w-full text-left transition-all duration-300"
-        >
-          <div className="p-4 rounded-lg border-2 bg-white border-gray-200 hover:border-emerald-300 hover:shadow-md">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Ingredients
-              </h2>
-              <motion.div
-                animate={{ rotate: isSelected ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <svg
-                  className="w-5 h-5 text-emerald-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </motion.div>
-            </div>
-          </div>
-        </button>
-
-        {/* Nutritional Info Dropdown */}
-        <button
-          onClick={() => onSelect(isSelected ? null : index)}
-          className="w-full text-left transition-all duration-300"
-        >
-          <div className="p-4 rounded-lg border-2 bg-white border-gray-200 hover:border-emerald-300 hover:shadow-md">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">
-                Nutritional Information
-              </h2>
-              <motion.div
-                animate={{ rotate: isSelected ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <svg
-                  className="w-5 h-5 text-emerald-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </motion.div>
-            </div>
-          </div>
-        </button>
-      </div>
+        </div>
+      </button>
 
       <AnimatePresence>
         {isSelected && (
